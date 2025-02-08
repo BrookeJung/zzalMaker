@@ -85,3 +85,7 @@
     * localStorage.getItem(key);
     * localStorage.removeItem(key);
     * 로컬 스토리지에 밸류 저장시 무조건 스트링으로 저장되기 때문에 읽어올때 변환해서 가져와야함
+
+* git config --global user.name "your name"
+* git config --global user.email "your email"
+* git config --global init.defaultBranch main
