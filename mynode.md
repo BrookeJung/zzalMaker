@@ -174,11 +174,29 @@ useState 에서 setCounter() 수행시 counter 의 값이 바로 새로운 값�
         * 테스트 셋업
         * 빌드 셋업
 https://create-react-app.dev/
-```
     # React app 프로젝트 생성 
-    pnpm create react-app cat-zzal-maker
-    # typescript 설치 및 환경 설정 - 패키지 설치
-    pnpm add typescript typescript@4 -D
-    # typescript 설치 및 환경 설정 - 패키지 환경 설정 파일 생성 
-    pnpm tsc --init
+    pnpm create react-app cat-jjal-maker
+    # React 선택
+    # variant 선택
+    cd cat-jjal-maker
+    pnpm i
+    vite
 ```
+
+* CRA 로 서비스 이식
+  * import, export 문법 : 파일을 모듈처럼 가져오고 내보내는 문법 https://joshua1988.github.io/vue-camp/es6+/modules.html#import-export-%E1%84%80%E1%85%B5%E1%84%87%E1%85%A9%E1%86%AB-%E1%84%8B%E1%85%A8%E1%84%8C%E1%85%A6
+
+  * 컴포넌트 분리
+  ```
+  git add.
+  git commit -m ""
+  git push origin main
+
+  pnpm i gh-pages
+  pnpm run build
+
+  #gh-pages -d dist
+  pnpm deploy 
+  ```
+
+  #pages 에서 gh-pages 브랜치 확인 및 배포 확인
