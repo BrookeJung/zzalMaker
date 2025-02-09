@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>고양이 가라사대</title>
+  <title>cat zzal maker</title>
   <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 </head>
 <style>
@@ -36,11 +36,18 @@
   <div id="app"></div>
 
   <script type="text/babel">
+    async function fetchCatApi(text) {
+      const OPEN_API_DOMAIN = "https://cataas.com";
+      const response = await fetch(`${OPEN_API_DOMAIN}/cat/says/${text}?json=true`);
+      const responseJson = await response.json();
+      return `${OPEN_API_DOMAIN}/cat/${responseJson._id}/says/${text}`;
+    }
+
     console.log("야옹");
 
-    const CatItem = ({ src, title }) => (
+    const CatItem = ({ src, title, onClick }) => (
       <li>
-        <img src={src} alt={title} />
+        <img src={src} alt={title} onClick={onClick} />
       </li>
     )
 
@@ -50,17 +57,20 @@
 
     const CATS = [CAT1, CAT2, CAT3];
 
-    const Favorites = ({ favorites }) => {
+    const Favorites = ({ favorites, onFavoriteClick }) => {
       return (
         <ul className="favorites">
-          {favorites.map((src, index) => <CatItem src={src} title="고양이" key={index} />)}
+          {favorites.length === 0 && (
+            <div style={{ color: "gray", textAlign: "center" }}>사진 위 하트를 눌러 고양이 사진을 모아보세요!</div>
+          )}
+          {favorites.map((src, index) => <CatItem src={src} title="고양이" key={index} onClick={() => onFavoriteClick(index)} />)}
         </ul>
       )
     }
 
     const MainCard = ({ img, alreadyFavorite, handleHeartClick }) => {
       const handleHeartOver = () => {
-        handleHeartClick();
+
       }
       const handleHeartOut = () => {
 
@@ -78,10 +88,6 @@
     const Title = (props) => <h1>{props.children}</h1>
 
     const Form = ({ updateMainCat }) => {
-      // const counterState = React.useState(1);
-      // const counter = counterState[0];
-      // const setCounter = counterState[1];
-
       const [inputText, setInputText] = React.useState("");
       const [errorMessage, setErrorMessage] = React.useState("");
 
@@ -131,9 +137,13 @@
 
 
     const App = () => {
-      const [counter, setCounter] = React.useState(jsonLocalStorage.getItem("counter") || 1);
+      const [counter, setCounter] = React.useState(() => {
+        return jsonLocalStorage.getItem("counter") || 0;
+      });
       const [mainCat, setMainCat] = React.useState(CAT1);
-      const [favorites, setFavorites] = React.useState(jsonLocalStorage.getItem("favorites") || []);
+      const [favorites, setFavorites] = React.useState(() => {
+        return jsonLocalStorage.getItem("favorites") || [];
+      });
 
       const handleHeartClick = () => {
         const nextFavorites = [...favorites, mainCat];
@@ -141,18 +151,48 @@
         jsonLocalStorage.setItem("favorites", nextFavorites);
       }
 
-      const updateMainCat = () => {
-        setMainCat(CAT2);
-        setCounter(counter + 1);
-        jsonLocalStorage.setItem("counter", counter + 1);
+      const handleFavoriteClick = (index) => {
+        const newFavorites = favorites.filter((cat, i) => i !== index);
+        setFavorites(newFavorites);
+        jsonLocalStorage.setItem("favorites", newFavorites);
       }
+
+      const initCat = async () => {
+        const newCat = await fetchCatApi('First cat');
+        setMainCat(newCat);
+      }
+      // initCat(); ui 업데이트마다 호출
+      // 두번째인자 : 관찰할 항목 -> 두번째인자에서 [] 최초 앱 생성시에만 호출 / [counter] 카운터 변수가 바뀔때마다 호출.. 
+      // 리액트 컴포넌트 안에 있는 함수는 기본적으로 ui 가 업데이트 될때마다 호출되늗데 특정 상태가 업데이트 됐을때만 호출되도록 제한하려면 useEffect 두번째 인자로 해당 상태를 전달
+      // 최초 앱 생성시에만 호출하려면 빈 배열, 
+      React.useEffect(() => {
+        initCat();
+      }, []);
+
+      const updateMainCat = async (value) => {
+        const newCat = await fetchCatApi(value);
+        setMainCat(newCat);
+        setCounter((prev) => {
+          const nextCounter = prev + 1;
+          jsonLocalStorage.setItem("counter", nextCounter);
+          return nextCounter
+        }); // setCounter 의 첫번째인자로 기존값을 전달받아서 새로운 값에 변경
+      }
+
+      const alreadyFavorite = () => {
+        return favorites.includes(mainCat);
+      }
+
+      React.useEffect(() => {
+        alreadyFavorite();
+      }, [mainCat]);
 
       return (
         <div id="app">
-          <Title>{counter}번째 고양이 가라사대</Title>
+          <Title>{counter > 0 ? counter + '번째' : ''} 고양이 가라사대</Title>
           <Form updateMainCat={updateMainCat} />
-          <MainCard img={mainCat} alreadyFavorite={false} handleHeartClick={handleHeartClick} />
-          <Favorites favorites={favorites} />
+          <MainCard img={mainCat} alreadyFavorite={alreadyFavorite()} handleHeartClick={handleHeartClick} />
+          <Favorites favorites={favorites} onFavoriteClick={handleFavoriteClick} />
         </div>
       )
     }
