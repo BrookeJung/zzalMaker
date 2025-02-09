@@ -1,3 +1,4 @@
+import CatItem from "./CatItem"
 const Favorites = ({ favorites, onFavoriteClick }) => {
     return (
         <ul className="favorites">
